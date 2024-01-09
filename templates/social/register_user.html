@@ -1,0 +1,51 @@
+{% extends "social/base.html" %}
+{% block title %} Sign Up {% endblock %}
+
+{% block bg %}
+
+<body class="verification-bg">
+  {% endblock %}
+
+  {% block body %}
+  {% load static %}
+
+  {% if user.is_authenticated %}
+  <h1>
+    <center><a href="{% url 'social:logout' %}">Log out</a> or <a href="{% url 'social:home' %}">go back</a>?</center>
+  </h1>
+  {% else %}
+
+  <div>
+    {% if form.errors %}
+    There was an error with your registration. Please try again!
+    {% endif %}
+  </div>
+
+  <br>
+  <div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+      <form class="col-6 border border-black shadow p-3 mb-5 bg-body-tertiary rounded"
+        action="{% url 'social:register' %}" method="POST">
+        {% csrf_token %}
+        <center>
+          <div class="col-md-6">
+            {{ form.as_p }}
+          </div>
+          <br>
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary">Sign up</button>
+          </div>
+          <br>
+          <div class="col-md-6">
+            <label for="login3" class="form-label">Have an account?</label>
+            <a href="{% url 'social:login' %}" id="login3">Login<a>
+          </div>
+        </center>
+      </form>
+
+      <br>
+
+    </div>
+  </div>
+  {% endif %}
+  {% endblock %}

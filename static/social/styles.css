@@ -1,0 +1,44 @@
+.verification-bg {
+    background-color: #4cb1f4;
+}
+
+.home-bg {
+    background-color: whitesmoke;
+}
+
+.connection-card {
+    max-width: 540px;
+}
+
+.profile-card {
+    width: 16rem;
+}
+
+.post-card {
+    width: 40rem;
+}
+
+.comment-card {
+    width: 28rem;
+}
+
+.recommendations-card {
+    width: 14rem;
+}
+
+.profile-info {
+    width: 30rem;
+}
+
+.comment-textarea {
+    width: 100%;
+    resize: none;
+    border-radius: 30px / 50%;
+}
+
+.post-textarea {
+    width: 100%;
+    border-radius: 30px / 50%;
+    margin-left: 3%;
+    resize: none
+}

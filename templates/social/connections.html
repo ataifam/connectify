@@ -1,0 +1,141 @@
+{% extends "social/base.html" %}
+{% load static %}
+{% block title %} Connections {% endblock %}
+
+{% block bg %}
+
+<body class="home-bg">
+  {% endblock %}
+
+  {% block body %}
+  {% if user.is_authenticated %}
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button"
+        role="tab" aria-controls="nav-home" aria-selected="true">Connections</button>
+      <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button"
+        role="tab" aria-controls="nav-profile" aria-selected="false">Followers</button>
+      <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button"
+        role="tab" aria-controls="nav-contact" aria-selected="false">Following</button>
+    </div>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+      <h3>Connections</h3>
+      {% if connections %}
+      {% for connection in connections %}
+      <div class="card mb-3 connection-card">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <center>
+              {% if connection.profile_pic %}
+              <img src="{{ connection.profile_pic.url }}" width="100px" height="100px">
+              {% else %}
+              <img src="{% static 'social/default.jpeg' %}" width="100px" height="100px">
+              {% endif %}
+            </center>
+          </div>
+          <div class="col-md">
+            <div class="card-body">
+              <h5 class="card-title">{{connection.user.username}} <a
+                  href="{% url 'social:profile' connection.user.id %}">@{{connection.user.username}}</a></h5>
+              <p class="card-text">{{connection.bio}}</p>
+              <p class="card-text"><small class="text-body-secondary">Last seen {{connection.last_seen|timesince}} ago</small></p>
+            </div>
+          </div>
+          <div class="col-md-1 align-top">
+            <form action="{% url 'social:follow' connection.user.id %}" method="POST">
+              {% csrf_token %}
+              <button class="btn btn-outline-danger card-link" data-bs-toggle="tooltip"
+              data-bs-title="Unfollow" name='follow' value="unfollow" type="submit"><i class="bi bi-person-dash"></i></button>
+            </form>
+        </div>
+      </div>
+      <br>
+      {% endfor %}
+      {% else %}
+      No mutual connections!
+      {% endif %}
+    </div>
+    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+      <h3>Followers</h3>
+      {% if profile.followed_by.all %}
+      {% for follower in profile.followed_by.all %}
+      <div class="card mb-3 connection-card">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <center>
+              {% if follower.profile_pic %}
+              <img src="{{ follower.profile_pic.url }}" width="100px" height="100px">
+              {% else %}
+              <img src="{% static 'social/default.jpeg' %}" width="100px" height="100px">
+              {% endif %}
+            </center>
+          </div>
+          <div class="col-md">
+            <div class="card-body">
+              <h5 class="card-title">{{follower.user.username}} <a
+                  href="{% url 'social:profile' follower.user.id %}">@{{follower.user.username}}</a></h5>
+              <p class="card-text">{{follower.bio}}</p>
+              <p class="card-text"><small class="text-body-secondary">Last seen {{follower.last_seen|timesince}} ago</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      {% endfor %}
+      {% else %}
+      You have no followers!
+      {% endif %}
+    </div>
+    <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">
+      <h3>Following</h3>
+      {% if profile.follows.all %}
+      {% for follow in profile.follows.all %}
+      <div class="card mb-3 connection-card">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <center>
+              {% if follow.profile_pic %}
+              <img src="{{ follow.profile_pic.url }}" width="100px" height="100px">
+              {% else %}
+              <img src="{% static 'social/default.jpeg' %}" width="100px" height="100px">
+              {% endif %}
+            </center>
+          </div>
+          <div class="col-md">
+            <div class="card-body">
+              <h5 class="card-title">{{follow.user.username}} <a
+                  href="{% url 'social:profile' follow.user.id %}">@{{follow.user.username}}</a></h5>
+              <p class="card-text">{{follow.bio}}</p>
+              <p class="card-text"><small class="text-body-secondary">Last seen {{follow.last_seen|timesince}} ago</small></p>
+            </div>
+          </div>
+          <div class="col-md-1 align-top">
+            <form action="{% url 'social:follow' follow.user.id %}" method="POST">
+              {% csrf_token %}
+              <button class="btn btn-outline-danger card-link" data-bs-toggle="tooltip"
+              data-bs-title="Unfollow" name='follow' value="unfollow" type="submit"><i class="bi bi-person-dash"></i></button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <br>
+      {% endfor %}
+      {% else %}
+      You aren't following anyone!
+      {% endif %}
+    </div>
+  </div>
+
+  <script nonce="{{ request.csp_nonce }}">
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  </script>
+
+  {% else %}
+  <h1>
+    <center>Oops! You must be <a href="{% url 'social:login' %}">logged in</a> to access this page!</center>
+  </h1>
+  {% endif %}
+  {% endblock %}

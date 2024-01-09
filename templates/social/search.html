@@ -1,0 +1,74 @@
+{% extends "social/base.html" %}
+{% load static %}
+{% block title %} Search {% endblock %}
+
+{% block bg %}
+
+<body class="home-bg">
+    {% endblock %}
+
+    {% block body %}
+    {% if user.is_authenticated %}
+
+    <form class="d-flex" role="search" action="">
+        <input name="q" class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+            list="profilelist">
+        <datalist id="profilelist">
+            <select id="profile">
+                {% for profile in profiles %}
+                <a href="{% url 'social:profile' profile.user.id %}">
+                    <option value="{{profile}}">{{profile}}</option>
+                </a>
+                {% endfor %}
+            </select>
+        </datalist>
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+    </form>
+    <br>
+    <h3>Results</h3>
+    {% if profiles %}
+    {% for profile in profiles %}
+    <div class="card mb-3 connection-card">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <center>
+                    {% if profile.profile_pic %}
+                    <img src="{{ profile.profile_pic.url }}" width="100px" height="100px">
+                    {% else %}
+                    <img src="{% static 'social/default.jpeg' %}" width="100px" height="100px">
+                    {% endif %}
+                </center>
+            </div>
+            <div class="col-md">
+                <div class="card-body">
+                    <h5 class="card-title">{{profile.user.username}} <a
+                            href="{% url 'social:profile' profile.user.id %}">@{{profile.user.username}}</a></h5>
+                    <p class="card-text">{{profile.bio}}</p>
+                    <p class="card-text"><small class="text-body-secondary">Last seen {{profile.last_seen|timesince}}
+                            ago</small></p>
+                </div>
+            </div>
+            <div class="col-md-1 align-top">
+                <form action="{% url 'social:follow' profile.user.id %}" method="POST">
+                    {% csrf_token %}
+                    {% if profile in user.profile.follows.all %}
+                    <button class="btn btn-outline-danger card-link" data-bs-toggle="tooltip" data-bs-title="Unfollow"
+                        name='follow' value="unfollow" type="submit"><i class="bi bi-person-dash"></i></button>
+                    {% else %}
+                    <button class="btn btn-outline-success card-link" data-bs-toggle="tooltip" data-bs-title="Follow"
+                        name='follow' value="follow" type="submit"><i class="bi bi-person-add"></i></button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+    {% endfor %}
+    {% endif %}
+
+    {% else %}
+    <h1>
+        <center>Oops! You must be <a href="{% url 'social:login' %}">logged in</a> to access this page!</center>
+    </h1>
+    {% endif %}
+    {% endblock %}

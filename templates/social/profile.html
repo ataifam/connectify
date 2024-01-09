@@ -1,0 +1,362 @@
+{% extends "social/base.html" %}
+{% load static %}
+{% block title %} Profile {% endblock %}
+
+{% block bg %}
+
+<body class="home-bg">
+  {% endblock %}
+
+  {% block body %}
+
+  {% if user.is_authenticated %}
+  {% if profile %}
+  <div>
+    {% if form.errors %}
+    There was an error with your registration. Please try again!
+    {% endif %}
+  </div>
+
+  <center>
+    <h1>{{profile.user}}'s Page</h1>
+    <div class="card profile-info">
+      <div class="card-header">
+        {% if profile.profile_pic %}
+        <img src="{{ profile.profile_pic.url }}" width="400px" height="400px">
+        {% else %}
+        <img src="{% static 'social/default.jpeg' %}" width="400px" height="400px">
+        {% endif %}
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">{{profile.bio}}</li>
+        <li class="list-group-item">Profile last updated: {{profile.last_seen|timesince}} ago</li>
+        <li class="list-group item">
+          <div class="container text-center">
+            <div class="row align-items-start">
+              {% if request.user.id == profile.user.id %}
+              <div class="col card-link" data-bs-toggle="tooltip"
+              data-bs-title="Edit profile">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+              </div>
+              {% endif %}
+              <div class="col card-link" data-bs-toggle="tooltip"
+              data-bs-title="Connections">
+                <button href="{% url 'social:connections' %}" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModalToggle"><i class="bi bi-people-fill"></i></button>
+              </div>
+              {% if request.user.id != profile.user.id %}
+              <div class="col">
+                <form action="{% url 'social:follow' profile.user.id %}" method="POST">
+                  {% csrf_token %}
+                  {% if profile in user.profile.follows.all %}
+                  <button class="btn btn-outline-danger card-link" data-bs-toggle="tooltip"
+                  data-bs-title="Unfollow" name='follow' value="unfollow" type="submit"><i class="bi bi-person-dash"></i></button>
+                  {% else %}
+                  <button class="btn btn-outline-success card-link" data-bs-toggle="tooltip"
+                  data-bs-title="Follow" name='follow' value="follow" type="submit"><i class="bi bi-person-add"></i></button>
+                  {% endif %}
+                </form>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <br><br>
+
+    {% if posts %}
+    {% for post in posts %}
+      <div class="card text-center mb-3 post-card">
+          <div class="card-body">
+              <div class="container text-center">
+                  <div class="row justify-content-start">
+                      <div class="col-1">
+                          {% if post.user.profile.profile_pic %}
+                          <img src="{{ post.user.profile.profile_pic.url }}" width="50px" height="50px">
+                          {% else %}
+                          <img src="{% static 'social/default.jpeg' %}" width="50px" height="50px">
+                          {% endif %}
+                      </div>
+                      <div class="col-10">
+                          <h5 class="card-title">{{ post }}</h5>
+                          <small class="card-text"><a
+                                  href="{% url 'social:profile' post.user.id %}">@{{post.user}}</a>,
+                              {{post.time|timesince}} ago
+                              {% if post.edited %} (Edited){% endif %}</small>
+                              
+                      </div>
+                      {% if request.user.id == post.user.id %}
+                      <!-- Button trigger modal -->
+                      <div class="col-1">
+                          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal"
+                              data-bs-target="#exampleModal">
+                              <i class="bi bi-pencil-square"></i>
+                          </button>
+                      </div>
+
+                      <!-- Modal -->
+                      <div class="modal fade" id="exampleModal" tabindex="-1"
+                          aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog">
+                              <div class="modal-content">
+                                  <div class="modal-header">
+                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Edit your
+                                          post</h1>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                          aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                      <form action="{% url 'social:updatePost' post.id %}"
+                                          method="POST">
+                                          {% csrf_token %}
+                                          {{postForm}}
+                                          
+                                  </div>
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary"
+                                          data-bs-dismiss="modal">Close</button>
+                                          <button type="submit" class="btn btn-primary">Save
+                                              changes</button>
+                                      </form>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                      {% endif %}
+                      
+                      <hr>
+                      {% if request.user.id == post.user.id %}
+                      <div class="col-1">
+                          <form action="{% url 'social:deletePost' post.id %}" method="POST">
+                              {% csrf_token %}
+
+                              <button class="btn btn-outline-primary">
+                                  <i class="bi bi-trash"></i>
+                              </button>
+
+                          </form>
+                      </div>
+                      {% else %}
+                      <div class="col-1">
+                       
+                      </div>
+                      {% endif %}
+                      <div class="col">
+                          <form action="{% url 'social:vote' post.id %}" method="POST">
+                              {% csrf_token %}
+                              <button class="btn btn-link" name="vote" value="up" type="submit">
+                                  {% if user in post.upvotes.all %}
+                                  <i class="bi bi-caret-up-square-fill text-success"></i>
+                                  {% else %}
+                                  <i class="bi bi-caret-up text-success"></i>
+                                  {% endif %}
+                              </button> {{post.score}} <button class="btn btn-link" name="vote"
+                                  value="down" type="submit">
+                                  {% if user in post.downvotes.all %}
+                                  <i class="bi bi-caret-down-square-fill text-danger"></i>
+                                  {% else %}
+                                  <i class="bi bi-caret-down text-danger"></i>
+                                  {% endif %}
+                              </button>
+                          </form>
+                      </div>
+                      <div class="col-1 align-self-end">
+                          <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
+                              data-bs-target="#collapseExample{{post.id}}" aria-expanded="false"
+                              aria-controls="collapseExample">
+                              <i class="bi bi-chat-dots"></i>
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+    <div class="collapse" id="collapseExample{{post.id}}">
+      {% if post.comments %}
+      <div class="card comment-card">
+        <ul class="list-group list-group-flush">
+          {% for comment in post.comments.all|dictsortreversed:"time"|slice:":10" %}
+          <li class="list-group-item">
+            <div class="container text-center">
+              <div class="row align-items-start">
+                <div class="col-1">
+                  {% if comment.user.profile.profile_pic %}
+                  <img src="{{ comment.user.profile.profile_pic.url }}" width="50px" height="50px">
+                  {% else %}
+                  <img src="{% static 'social/default.jpeg' %}" width="50px" height="50px">
+                  {% endif %}
+                </div>
+                <div class="col">
+                  {{comment.content}}<br><small><a href="{% url 'social:profile' comment.user.id %}">{{comment.user}}</a>, 
+                  {{comment.time|timesince}} ago</small>
+                </div>
+              </div>
+            </div>
+
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <br>
+
+      <form action="{% url 'social:comment' post.id %}" method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ commentForm }}
+          <br>
+          <button type="submit" class="btn btn-outline-primary"><i class="bi bi-send"></i></button>
+        </div>
+      </form>
+    </div>
+    <br>
+    {% endfor %}
+    {% endif %}
+
+  </center>
+
+  <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel"
+                  tabindex="-1">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Connections <span class="badge text-bg-secondary">{{connections.count}}</span></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        {% for connection in connections %}
+                        <a href="{% url 'social:profile' connection.user.id %}">@{{connection}}</a><br>
+                        {% endfor %}
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-primary" data-bs-target="#exampleModalToggle2"
+                          data-bs-toggle="modal">Following</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2"
+                  tabindex="-1">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Following <span class="badge text-bg-secondary">{{profile.follows.all.count}}</span></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        {% for following in profile.follows.all %}
+                        <a href="{% url 'social:profile' following.user.id %}">@{{following}}</a><br>
+                        {% endfor %}
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-primary" data-bs-target="#exampleModalToggle3"
+                          data-bs-toggle="modal">Followers</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+        
+                <div class="modal fade" id="exampleModalToggle3" aria-hidden="true" aria-labelledby="exampleModalToggleLabel3"
+                  tabindex="-1">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Followers <span class="badge text-bg-secondary">{{profile.followed_by.all.count}}</span></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        {% for followed in profile.followed_by.all %}
+                        <a href="{% url 'social:profile' followed.user.id %}">@{{followed}}</a><br>
+                        {% endfor %}
+                      </div>
+                      <div class="modal-footer">
+                        <button class="btn btn-primary" data-bs-target="#exampleModalToggle"
+                          data-bs-toggle="modal">Connections</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+  aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">Profile Settings</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <center>
+        <h1 class="card-title">Change Account Bio</h1><br>
+        <form action="{% url 'social:profile' request.user.id %}" method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ bioForm.as_p }}
+          </div>
+          <div class="mb-3">
+            <button type="submit" class="btn btn-primary" name="new-bio">Save Bio</button>
+          </div>
+        </form>
+        </center>
+
+        <br /><br />
+
+        <center>
+        <h1 class="card-title">Change Password</h1><br>
+        <form action="{% url 'social:profile' request.user.id %}" method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <h5><input type="text" readonly class="form-control-plaintext" id="staticEmail"
+                value="Username: {{ request.user }}"></h5>
+          </div>
+          <div class="mb-3">
+            {{ passwordForm.as_table }}
+          </div>
+          <div class="mb-3">
+            <button type="submit" class="btn btn-primary" name="new-pass">Save Password</button>
+          </div>
+        </form>
+      </center>
+
+        <br><br>
+
+        <center>
+        <h1 class="card-title">Change Profile Pic</h1><br>
+        <form action="{% url 'social:profile' request.user.id %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            {{ picForm.as_table }}
+          </div>
+          <div class="mb-3">
+            <button type="submit" class="btn btn-primary" name="new-pic">Save Photo</button>
+          </div>
+        </form>
+      </center>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script nonce="{{ request.csp_nonce }}">
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  </script>
+
+  {% else %}
+  Sorry! Profile not found!
+  {% endif %}
+
+  {% else %}
+  <h1>
+    <center>Oops! You must be <a href="{% url 'social:login' %}">logged in</a> to access this page!</center>
+  </h1>
+  {% endif %}
+
+  {% endblock %}

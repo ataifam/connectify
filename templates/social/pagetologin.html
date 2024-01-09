@@ -1,0 +1,47 @@
+{% extends "social/base.html" %}
+{% block title %} Login {% endblock %}
+
+{% block bg %}
+
+<body class="verification-bg">
+  {% endblock %}
+
+  {% block body %}
+  {% if user.is_authenticated %}
+  <h1>
+    <center><a href="{% url 'social:logout' %}">Log out</a> or <a href="{% url 'social:home' %}">go back</a>?</center>
+  </h1>
+  {% else %}
+
+  <br>
+  <div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+      <form class="col-4 border border-black shadow p-3 mb-5 bg-body-tertiary rounded" action="" method="POST">
+        {% csrf_token %}
+        <center>
+          <div class="col-md-6">
+            <label for="username3" class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" id="username3">
+          </div>
+          <div class="col-md-6">
+            <label for="password3" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" id="password3">
+          </div>
+          <br>
+            {{captcha}}
+            <br>
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary">Log in</button>
+          </div>
+          <br>
+          <div class="col-md-6">
+            <label for="signup3" class="form-label">Don't have an account?</label>
+            <a href="{% url 'social:register' %}" id="signup3">Sign Up</a>
+          </div>
+        </center>
+      </form>
+    </div>
+  </div>
+
+  {% endif %}
+  {% endblock %}
