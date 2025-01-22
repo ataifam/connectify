@@ -10,20 +10,20 @@
     max-width: 540px;
 }
 
-.profile-card {
-    width: 16rem;
+.profile-col {
+    width: 15rem!important;
 }
 
-.post-card {
-    width: 40rem;
+.recommendations-col {
+    width: 15rem!important;
+}
+
+.post-col {
+    min-width: 25rem;
 }
 
 .comment-card {
     width: 28rem;
-}
-
-.recommendations-card {
-    width: 14rem;
 }
 
 .profile-info {
@@ -41,4 +41,19 @@
     border-radius: 30px / 50%;
     margin-left: 3%;
     resize: none
+}
+
+@media screen and (max-width: 650px) {
+
+    .profile-col {
+        width: 100%!important;
+    }
+    
+    .recommendations-col {
+        width: 100%!important;
+    }
+
+    .profile-info {
+        width: 15rem;
+    }
 }

@@ -12,9 +12,9 @@
     {% if user.is_authenticated %}
 
     <div class="container text-center">
-        <div class="row align-items-start">
-            <div class="col">
-                <div class="card position-fixed profile-card">
+        <div class="row justify-content-evenly">
+            <div class="col-2 mb-3 ms-auto me-auto profile-col">
+                <div class="card">
                     <br>
                     <center>
                         {% if user.profile.profile_pic %}
@@ -38,9 +38,9 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class="col mb-3 post-col">
                 <center>
-                    <div class="card text-center mb-3 post-card">
+                    <div class="card text-center mb-3">
                         <div class="card-body">
                             <div class="container text-center">
                                 <div class="row justify-content-start">
@@ -52,7 +52,7 @@
                                         {% endif %}
                                     </div>
                                     <div class="col">
-                                        <form method="POST">
+                                        <form method="POST" class="px-3">
                                             {% csrf_token %}
                                             <center>
                                                 {{form}}
@@ -71,7 +71,7 @@
                 <br>
                 {% for post in posts %}
                 <center>
-                    <div class="card text-center mb-3 post-card">
+                    <div class="card text-center mb-3">
                         <div class="card-body">
                             <div class="container text-center">
                                 <div class="row justify-content-start">
@@ -165,7 +165,7 @@
                                             </button>
                                         </form>
                                     </div>
-                                    <div class="col-1 align-self-end">
+                                    <div class="col-1 align-self-end me-2">
                                         <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#collapseExample{{post.id}}" aria-expanded="false"
                                             aria-controls="collapseExample">
@@ -221,8 +221,8 @@
                 </center>
                 {% endfor %}
             </div>
-            <div class="col">
-                <div class="card position-fixed recommendations-card">
+            <div class="col-2 ms-auto me-auto recommendations-col">
+                <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">See more from...</h5>
                     </div>
